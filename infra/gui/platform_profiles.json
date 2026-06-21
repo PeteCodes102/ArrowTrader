@@ -1,0 +1,22 @@
+{
+  "Tradovate": {
+    "window_name": "Tradovate - Dark Default",
+    "secret": "asdfasdf",
+    "hotkeys": {
+      "buy": "alt+shift+b",
+      "sell": "alt+shift+s",
+      "exit": "alt+shift+e",
+      "reverse": "alt+shift+r"
+    }
+  },
+  "TradingView": {
+    "window_name": "TradingView",
+    "secret": "",
+    "hotkeys": {
+      "buy": "alt+b",
+      "sell": "alt+s",
+      "exit": "alt+e",
+      "reverse": "alt+r"
+    }
+  }
+}
