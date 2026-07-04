@@ -42,9 +42,10 @@ class ArrowTraderApp(ctk.CTk):
     └──────────────────────────────────────────────┘
     """
 
-    def __init__(self):
+    def __init__(self, default_api_url: str = "http://127.0.0.1:8000/api/v1"):
         super().__init__()
         self.platform_store = PlatformProfileStore()
+        self._default_api_url = default_api_url
         self._setup()
         self._build()
 
@@ -92,7 +93,7 @@ class ArrowTraderApp(ctk.CTk):
         self.platform_selector.grid(row=2, column=0, sticky="ew", padx=24, pady=(14, 0))
 
         # ── Window / Secret inputs ─────────────────────────────────────────────
-        self.window_input = WindowInputSection(self)
+        self.window_input = WindowInputSection(self, default_api_url=self._default_api_url)
         self.window_input.grid(row=3, column=0, sticky="ew", padx=24, pady=(10, 0))
 
         # ── Hotkey inputs ──────────────────────────────────────────────────────
@@ -125,6 +126,10 @@ class ArrowTraderApp(ctk.CTk):
         return self.window_input.secret
 
     @property
+    def api_url(self) -> str:
+        return self.window_input.api_url
+
+    @property
     def trader_enabled(self) -> bool:
         return self.trader_power.enabled
 
@@ -152,6 +157,7 @@ class ArrowTraderApp(ctk.CTk):
         self.platform_selector.set_selected_platform(platform_name, notify=False)
         self.window_input.set_window_name(str(profile.get("window_name", "")))
         self.window_input.set_secret(str(profile.get("secret", "")))
+        self.window_input.set_api_url(str(profile.get("api_url", self._default_api_url)))
         self.hotkey_inputs.set_hotkeys(dict(profile.get("hotkeys", {})))
 
         if announce:
@@ -163,7 +169,13 @@ class ArrowTraderApp(ctk.CTk):
             self.log("Select a platform before saving.")
             return
 
-        self.platform_store.save_profile(platform_name, self.window_name, self.secret, self.hotkeys)
+        self.platform_store.save_profile(
+            platform_name,
+            self.window_name,
+            self.secret,
+            self.api_url,
+            self.hotkeys,
+        )
         self.platform_selector.set_platforms(self.platform_store.platform_names(), selected=platform_name)
         self.log(f"Updated platform profile: {platform_name}")
 
@@ -174,7 +186,13 @@ class ArrowTraderApp(ctk.CTk):
             return
 
         try:
-            self.platform_store.add_profile(platform_name, self.window_name, self.secret, self.hotkeys)
+            self.platform_store.add_profile(
+                platform_name,
+                self.window_name,
+                self.secret,
+                self.api_url,
+                self.hotkeys,
+            )
         except ValueError as exc:
             self.log(str(exc))
             return

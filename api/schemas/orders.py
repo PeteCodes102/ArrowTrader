@@ -2,25 +2,33 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 from pydantic.config import ConfigDict
 
 
 class OrderRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    contract: str = Field(..., description="Contract/symbol identifier.")
+    contract: str | None = Field(None, description="Contract/symbol identifier.")
     quantity: int = Field(..., ge=1, description="Number of units/contracts.")
     price: float = Field(..., gt=0, description="Requested/last price.")
     secret: str = Field(
         ...,
-        validation_alias=AliasChoices("secret", "spam-key"),
-        description="Authentication secret from the GUI Secret field. Accepts either 'secret' or 'spam-key'.",
+        validation_alias=AliasChoices("secret", "spam-key", "alert_id"),
+        description="Auth secret. Accepts 'secret', 'spam-key', or 'alert_id'.",
     )
     trade_type: Literal["buy", "sell", "exit", "reverse"] = Field(
         ...,
-        description="Trading action to execute.",
+        validation_alias=AliasChoices("trade_type", "action"),
+        description="Trading action. Accepts 'trade_type' or 'action'. 'flatten' normalises to 'exit'.",
     )
+
+    @field_validator("trade_type", mode="before")
+    @classmethod
+    def _normalise_trade_type(cls, v: object) -> object:
+        if v == "flatten":
+            return "exit"
+        return v
 
 
 class OrderResponse(BaseModel):

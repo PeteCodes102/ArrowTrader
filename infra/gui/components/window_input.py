@@ -124,10 +124,10 @@ class WindowTitlePickerDialog(ctk.CTkToplevel):
 
 class WindowInputSection(ctk.CTkFrame):
     """
-    Card containing the Window Name and Secret entry fields side-by-side.
+    Card containing window targeting and API credential/settings inputs.
     """
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, default_api_url: str = "http://127.0.0.1:8000/api/v1", **kwargs):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
@@ -136,6 +136,7 @@ class WindowInputSection(ctk.CTkFrame):
             border_color=COLORS["border"],
             **kwargs,
         )
+        self._default_api_url = default_api_url
         self._build()
 
     # ── Layout ────────────────────────────────────────────────────────────────
@@ -192,6 +193,23 @@ class WindowInputSection(ctk.CTkFrame):
         )
         self.secret_entry.grid(row=1, column=1, sticky="ew", padx=(8, 16), pady=(0, 16))
 
+        ctk.CTkLabel(
+            self,
+            text="API URL",
+            font=FONTS["section"],
+            text_color=COLORS["text_dim"],
+            anchor="w",
+        ).grid(row=2, column=0, columnspan=2, sticky="w", padx=(16, 16), pady=(0, 4))
+
+        self.api_url_entry = ctk.CTkEntry(
+            self,
+            placeholder_text="http://127.0.0.1:8000/api/v1",
+            show="",
+            **ENTRY_STYLE,
+        )
+        self.api_url_entry.grid(row=3, column=0, columnspan=2, sticky="ew", padx=(16, 16), pady=(0, 16))
+        self.set_api_url(self._default_api_url)
+
     # ── Public API ────────────────────────────────────────────────────────────
 
     @property
@@ -202,6 +220,10 @@ class WindowInputSection(ctk.CTkFrame):
     def secret(self) -> str:
         return self.secret_entry.get()
 
+    @property
+    def api_url(self) -> str:
+        return self.api_url_entry.get()
+
     def set_window_name(self, value: str) -> None:
         self.window_name_entry.delete(0, "end")
         self.window_name_entry.insert(0, value)
@@ -209,6 +231,10 @@ class WindowInputSection(ctk.CTkFrame):
     def set_secret(self, value: str) -> None:
         self.secret_entry.delete(0, "end")
         self.secret_entry.insert(0, value)
+
+    def set_api_url(self, value: str) -> None:
+        self.api_url_entry.delete(0, "end")
+        self.api_url_entry.insert(0, value)
 
     def open_window_picker(self) -> None:
         window_titles = self._current_window_titles()

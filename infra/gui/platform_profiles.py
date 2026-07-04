@@ -8,6 +8,7 @@ _DEFAULT_PROFILES: dict[str, dict[str, object]] = {
     "Tradovate": {
         "window_name": "Tradovate",
         "secret": "",
+        "api_url": "http://127.0.0.1:8000/api/v1",
         "hotkeys": {
             "buy": "ctrl+shift+b",
             "sell": "ctrl+shift+s",
@@ -18,6 +19,7 @@ _DEFAULT_PROFILES: dict[str, dict[str, object]] = {
     "TradingView": {
         "window_name": "TradingView",
         "secret": "",
+        "api_url": "http://127.0.0.1:8000/api/v1",
         "hotkeys": {
             "buy": "alt+b",
             "sell": "alt+s",
@@ -63,12 +65,14 @@ class PlatformProfileStore:
                 continue
             window_name = str(payload.get("window_name", ""))
             secret = str(payload.get("secret", ""))
+            api_url = str(payload.get("api_url", "http://127.0.0.1:8000/api/v1"))
             hotkeys = payload.get("hotkeys", {})
             if not isinstance(hotkeys, dict):
                 hotkeys = {}
             profiles[str(platform_name)] = {
                 "window_name": window_name,
                 "secret": secret,
+                "api_url": api_url,
                 "hotkeys": {
                     "buy": str(hotkeys.get("buy", "")),
                     "sell": str(hotkeys.get("sell", "")),
@@ -94,11 +98,13 @@ class PlatformProfileStore:
         platform_name: str,
         window_name: str,
         secret: str,
+        api_url: str,
         hotkeys: dict[str, str],
     ) -> None:
         self._profiles[platform_name] = {
             "window_name": window_name,
             "secret": secret,
+            "api_url": api_url,
             "hotkeys": {
                 "buy": hotkeys.get("buy", ""),
                 "sell": hotkeys.get("sell", ""),
@@ -113,8 +119,9 @@ class PlatformProfileStore:
         platform_name: str,
         window_name: str,
         secret: str,
+        api_url: str,
         hotkeys: dict[str, str],
     ) -> None:
         if platform_name in self._profiles:
             raise ValueError(f"Platform profile already exists: {platform_name!r}")
-        self.save_profile(platform_name, window_name, secret, hotkeys)
+        self.save_profile(platform_name, window_name, secret, api_url, hotkeys)
