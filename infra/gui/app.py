@@ -93,7 +93,11 @@ class ArrowTraderApp(ctk.CTk):
         self.platform_selector.grid(row=2, column=0, sticky="ew", padx=24, pady=(14, 0))
 
         # ── Window / Secret inputs ─────────────────────────────────────────────
-        self.window_input = WindowInputSection(self, default_api_url=self._default_api_url)
+        self.window_input = WindowInputSection(
+            self,
+            default_api_url=self._default_api_url,
+            on_save=self.save_selected_platform_profile,
+        )
         self.window_input.grid(row=3, column=0, sticky="ew", padx=24, pady=(10, 0))
 
         # ── Hotkey inputs ──────────────────────────────────────────────────────
@@ -130,6 +134,22 @@ class ArrowTraderApp(ctk.CTk):
         return self.window_input.api_url
 
     @property
+    def session_only(self) -> bool:
+        return self.window_input.session_only
+
+    @property
+    def session_start_time(self) -> str:
+        return self.window_input.session_start_time
+
+    @property
+    def session_end_time(self) -> str:
+        return self.window_input.session_end_time
+
+    @property
+    def session_allowed_days(self) -> str:
+        return self.window_input.session_allowed_days
+
+    @property
     def trader_enabled(self) -> bool:
         return self.trader_power.enabled
 
@@ -158,6 +178,15 @@ class ArrowTraderApp(ctk.CTk):
         self.window_input.set_window_name(str(profile.get("window_name", "")))
         self.window_input.set_secret(str(profile.get("secret", "")))
         self.window_input.set_api_url(str(profile.get("api_url", self._default_api_url)))
+        session_filter = profile.get("session_filter", {})
+        if not isinstance(session_filter, dict):
+            session_filter = {}
+        self.window_input.set_session_filter(
+            bool(session_filter.get("enabled", False)),
+            str(session_filter.get("start_time", "09:30")),
+            str(session_filter.get("end_time", "16:00")),
+            str(session_filter.get("allowed_days", "123456")),
+        )
         self.hotkey_inputs.set_hotkeys(dict(profile.get("hotkeys", {})))
 
         if announce:
@@ -174,6 +203,10 @@ class ArrowTraderApp(ctk.CTk):
             self.window_name,
             self.secret,
             self.api_url,
+            self.session_only,
+            self.session_start_time,
+            self.session_end_time,
+            self.session_allowed_days,
             self.hotkeys,
         )
         self.platform_selector.set_platforms(self.platform_store.platform_names(), selected=platform_name)
@@ -191,6 +224,10 @@ class ArrowTraderApp(ctk.CTk):
                 self.window_name,
                 self.secret,
                 self.api_url,
+                self.session_only,
+                self.session_start_time,
+                self.session_end_time,
+                self.session_allowed_days,
                 self.hotkeys,
             )
         except ValueError as exc:

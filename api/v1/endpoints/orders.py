@@ -22,6 +22,16 @@ def _reject_when_trader_is_off(trader: Trader) -> None:
     )
 
 
+def _reject_when_outside_session(trader: Trader) -> None:
+    allowed, reason = trader.is_within_allowed_session()
+    if allowed:
+        return
+
+    detail = reason or "Trade rejected by session filter settings."
+    trader._app.log(detail)
+    raise HTTPException(status_code=503, detail=detail)
+
+
 def _authorize_or_raise(trader: Trader, presented_secret: str | None) -> None:
     if not trader.secret_is_configured:
         raise HTTPException(
@@ -46,6 +56,7 @@ async def place_order(
 ) -> OrderResponse:
     request_start_ns = time.perf_counter_ns()
     _reject_when_trader_is_off(trader)
+    _reject_when_outside_session(trader)
 
     auth_start_ns = time.perf_counter_ns()
     _authorize_or_raise(trader, payload.secret)

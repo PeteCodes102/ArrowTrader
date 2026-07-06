@@ -18,5 +18,17 @@ class MainApp(Protocol):
     @property
     def hotkeys(self) -> dict[str, str]: ...
 
+    @property
+    def session_only(self) -> bool: ...
+
+    @property
+    def session_start_time(self) -> str: ...
+
+    @property
+    def session_end_time(self) -> str: ...
+
+    @property
+    def session_allowed_days(self) -> str: ...
+
 
 

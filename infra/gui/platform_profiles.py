@@ -9,6 +9,12 @@ _DEFAULT_PROFILES: dict[str, dict[str, object]] = {
         "window_name": "Tradovate",
         "secret": "",
         "api_url": "http://127.0.0.1:8000/api/v1",
+        "session_filter": {
+            "enabled": False,
+            "start_time": "09:30",
+            "end_time": "16:00",
+            "allowed_days": "123456",
+        },
         "hotkeys": {
             "buy": "ctrl+shift+b",
             "sell": "ctrl+shift+s",
@@ -20,6 +26,12 @@ _DEFAULT_PROFILES: dict[str, dict[str, object]] = {
         "window_name": "TradingView",
         "secret": "",
         "api_url": "http://127.0.0.1:8000/api/v1",
+        "session_filter": {
+            "enabled": False,
+            "start_time": "09:30",
+            "end_time": "16:00",
+            "allowed_days": "123456",
+        },
         "hotkeys": {
             "buy": "alt+b",
             "sell": "alt+s",
@@ -66,6 +78,9 @@ class PlatformProfileStore:
             window_name = str(payload.get("window_name", ""))
             secret = str(payload.get("secret", ""))
             api_url = str(payload.get("api_url", "http://127.0.0.1:8000/api/v1"))
+            session_filter = payload.get("session_filter", {})
+            if not isinstance(session_filter, dict):
+                session_filter = {}
             hotkeys = payload.get("hotkeys", {})
             if not isinstance(hotkeys, dict):
                 hotkeys = {}
@@ -73,6 +88,12 @@ class PlatformProfileStore:
                 "window_name": window_name,
                 "secret": secret,
                 "api_url": api_url,
+                "session_filter": {
+                    "enabled": bool(session_filter.get("enabled", False)),
+                    "start_time": str(session_filter.get("start_time", "09:30")),
+                    "end_time": str(session_filter.get("end_time", "16:00")),
+                    "allowed_days": str(session_filter.get("allowed_days", "123456")),
+                },
                 "hotkeys": {
                     "buy": str(hotkeys.get("buy", "")),
                     "sell": str(hotkeys.get("sell", "")),
@@ -99,12 +120,22 @@ class PlatformProfileStore:
         window_name: str,
         secret: str,
         api_url: str,
+        session_filter_enabled: bool,
+        session_filter_start_time: str,
+        session_filter_end_time: str,
+        session_filter_allowed_days: str,
         hotkeys: dict[str, str],
     ) -> None:
         self._profiles[platform_name] = {
             "window_name": window_name,
             "secret": secret,
             "api_url": api_url,
+            "session_filter": {
+                "enabled": bool(session_filter_enabled),
+                "start_time": session_filter_start_time,
+                "end_time": session_filter_end_time,
+                "allowed_days": session_filter_allowed_days,
+            },
             "hotkeys": {
                 "buy": hotkeys.get("buy", ""),
                 "sell": hotkeys.get("sell", ""),
@@ -120,8 +151,22 @@ class PlatformProfileStore:
         window_name: str,
         secret: str,
         api_url: str,
+        session_filter_enabled: bool,
+        session_filter_start_time: str,
+        session_filter_end_time: str,
+        session_filter_allowed_days: str,
         hotkeys: dict[str, str],
     ) -> None:
         if platform_name in self._profiles:
             raise ValueError(f"Platform profile already exists: {platform_name!r}")
-        self.save_profile(platform_name, window_name, secret, api_url, hotkeys)
+        self.save_profile(
+            platform_name,
+            window_name,
+            secret,
+            api_url,
+            session_filter_enabled,
+            session_filter_start_time,
+            session_filter_end_time,
+            session_filter_allowed_days,
+            hotkeys,
+        )

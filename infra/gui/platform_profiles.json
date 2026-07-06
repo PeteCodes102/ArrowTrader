@@ -1,7 +1,8 @@
 {
   "Tradovate": {
     "window_name": "Tradovate - Dark Default",
-    "secret": "asdfasdf",
+    "secret": "Vst1jyVp1NQgD074bSghNchGwFUUJMIhpmHyX2QpwyU",
+    "api_url": "https://desktop-e2hnpud.tailc1c542.ts.net/api/v1",
     "hotkeys": {
       "buy": "alt+shift+b",
       "sell": "alt+shift+s",
@@ -12,6 +13,7 @@
   "TradingView": {
     "window_name": "TradingView",
     "secret": "",
+    "api_url": "http://127.0.0.1:8000/api/v1",
     "hotkeys": {
       "buy": "alt+b",
       "sell": "alt+s",
