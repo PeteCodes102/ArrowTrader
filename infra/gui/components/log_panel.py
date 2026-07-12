@@ -48,7 +48,7 @@ class LogPanel(ctk.CTkFrame):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=10,
             border_width=1,
             border_color=COLORS["border"],
             **kwargs,
@@ -67,13 +67,13 @@ class LogPanel(ctk.CTkFrame):
 
     def _build_toolbar(self) -> None:
         bar = ctk.CTkFrame(self, fg_color="transparent")
-        bar.grid(row=0, column=0, sticky="ew", padx=16, pady=(12, 6))
+        bar.grid(row=0, column=0, sticky="ew", padx=14, pady=(10, 4))
         bar.grid_columnconfigure(1, weight=1)
 
         # Section title
         ctk.CTkLabel(
             bar,
-            text="ACTIVITY LOG",
+            text="Activity Log:",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
         ).grid(row=0, column=0, sticky="w")
@@ -84,7 +84,7 @@ class LogPanel(ctk.CTkFrame):
             text="",
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
-            width=80,
+            width=72,
             anchor="e",
         )
         self._match_label.grid(row=0, column=2, sticky="e", padx=(4, 6))
@@ -96,8 +96,8 @@ class LogPanel(ctk.CTkFrame):
             bar,
             placeholder_text="Search log…",
             textvariable=self._search_var,
-            height=28,
-            width=180,
+            height=26,
+            width=168,
             corner_radius=6,
             border_width=1,
             border_color=COLORS["border"],
@@ -111,8 +111,8 @@ class LogPanel(ctk.CTkFrame):
         ctk.CTkButton(
             bar,
             text="Clear",
-            width=54,
-            height=28,
+            width=50,
+            height=26,
             corner_radius=6,
             fg_color=COLORS["surface_alt"],
             hover_color=COLORS["border"],
@@ -126,7 +126,7 @@ class LogPanel(ctk.CTkFrame):
             self,
             fg_color=COLORS["surface_alt"],
             text_color=COLORS["text"],
-            corner_radius=8,
+            corner_radius=7,
             border_width=1,
             border_color=COLORS["border_subtle"],
             font=FONTS["mono"],
@@ -136,7 +136,7 @@ class LogPanel(ctk.CTkFrame):
             scrollbar_button_hover_color=COLORS["text_dim"],
             activate_scrollbars=True,
         )
-        self._textbox.grid(row=1, column=0, sticky="nsew", padx=16, pady=(0, 14))
+        self._textbox.grid(row=1, column=0, sticky="nsew", padx=14, pady=(0, 12))
 
         # Register tags on the underlying tk.Text widget
         tb = self._textbox._textbox

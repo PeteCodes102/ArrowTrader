@@ -32,6 +32,7 @@ class ActionButtonSection(ctk.CTkFrame):
         self,
         parent,
         commands: dict[str, Callable] | None = None,
+        on_command_set: Callable[[str, Callable | None], None] | None = None,
         **kwargs,
     ):
         super().__init__(
@@ -40,18 +41,24 @@ class ActionButtonSection(ctk.CTkFrame):
             **kwargs,
         )
         self.buttons: dict[str, ctk.CTkButton] = {}
-        self._build(commands or {})
+        self._commands: dict[str, Callable | None] = dict(commands or {})
+        self._on_command_set = on_command_set
+        self._build(self._commands)
 
     # ── Layout ────────────────────────────────────────────────────────────────
 
     def _build(self, commands: dict[str, Callable]) -> None:
         self.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
+        row_frame = ctk.CTkFrame(self, fg_color="transparent")
+        row_frame.grid(row=0, column=0, sticky="ew")
+        row_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+
         for col, action in enumerate(_ACTIONS):
             px = _PADX[col]
             btn = ctk.CTkButton(
-                self,
-                text=action.upper(),
+                row_frame,
+                text=action.capitalize(),
                 command=commands.get(action),
                 **ACTION_BUTTONS[action],
             )
@@ -62,4 +69,11 @@ class ActionButtonSection(ctk.CTkFrame):
 
     def set_command(self, action: str, command: Callable) -> None:
         """Bind or replace the callback for a single button after construction."""
+        self._commands[action] = command
         self.buttons[action].configure(command=command)
+        if self._on_command_set is not None:
+            self._on_command_set(action, command)
+
+    def get_commands(self) -> dict[str, Callable | None]:
+        """Return current action callback mapping."""
+        return dict(self._commands)

@@ -23,7 +23,7 @@ class HotkeyInputSection(ctk.CTkFrame):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=10,
             border_width=1,
             border_color=COLORS["border"],
             **kwargs,
@@ -39,11 +39,11 @@ class HotkeyInputSection(ctk.CTkFrame):
         # Section header
         ctk.CTkLabel(
             self,
-            text="HOTKEYS",
+            text="Hot Keys:",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=0, columnspan=4, sticky="w", padx=16, pady=(14, 8))
+        ).grid(row=0, column=0, columnspan=4, sticky="w", padx=14, pady=(10, 6))
 
         # Coloured column labels + entry boxes
         for col, (name, color) in enumerate(_ACTIONS):
@@ -55,14 +55,14 @@ class HotkeyInputSection(ctk.CTkFrame):
                 font=FONTS["label"],
                 text_color=color,
                 anchor="w",
-            ).grid(row=1, column=col, sticky="w", padx=px, pady=(0, 4))
+            ).grid(row=1, column=col, sticky="w", padx=px, pady=(0, 3))
 
             entry = ctk.CTkEntry(
                 self,
-                placeholder_text="e.g. ctrl+shift+b  or  F3  or  alt+b then enter",
+                placeholder_text="ctrl+shift+b or F3",
                 **ENTRY_STYLE,
             )
-            entry.grid(row=2, column=col, sticky="ew", padx=px, pady=(0, 16))
+            entry.grid(row=2, column=col, sticky="ew", padx=px, pady=(0, 10))
             self.entries[name.lower()] = entry
 
     # ── Public API ────────────────────────────────────────────────────────────
@@ -77,5 +77,3 @@ class HotkeyInputSection(ctk.CTkFrame):
             value = hotkeys.get(key, "")
             entry.delete(0, "end")
             entry.insert(0, value)
-
-# TODO: app final steps to finish executing trades

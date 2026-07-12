@@ -10,7 +10,7 @@ class TraderPowerSection(ctk.CTkFrame):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=10,
             border_width=1,
             border_color=COLORS["border"],
             **kwargs,
@@ -25,11 +25,11 @@ class TraderPowerSection(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=0)
 
         copy_frame = ctk.CTkFrame(self, fg_color="transparent")
-        copy_frame.grid(row=0, column=0, sticky="w", padx=16, pady=14)
+        copy_frame.grid(row=0, column=0, sticky="w", padx=14, pady=10)
 
         ctk.CTkLabel(
             copy_frame,
-            text="TRADER POWER",
+            text="Trader Power:",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
             anchor="w",
@@ -37,23 +37,23 @@ class TraderPowerSection(ctk.CTkFrame):
 
         ctk.CTkLabel(
             copy_frame,
-            text="Controls whether the API accepts inbound orders.",
+            text="Turn the Trader API On/Off",
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).pack(anchor="w", pady=(2, 0))
+        ).pack(anchor="w", pady=(1, 0))
 
         control_frame = ctk.CTkFrame(self, fg_color="transparent")
-        control_frame.grid(row=0, column=1, sticky="e", padx=16, pady=14)
+        control_frame.grid(row=0, column=1, sticky="e", padx=14, pady=10)
 
         self.status_label = ctk.CTkLabel(
             control_frame,
             text="",
             font=FONTS["section"],
-            width=72,
+            width=58,
             corner_radius=8,
-            padx=10,
-            pady=6,
+            padx=8,
+            pady=4,
         )
         self.status_label.pack(side="left", padx=(0, 12))
 
@@ -68,7 +68,7 @@ class TraderPowerSection(ctk.CTkFrame):
             button_color=COLORS["text"],
             button_hover_color=COLORS["text_dim"],
             fg_color=COLORS["border"],
-            width=54,
+            width=48,
         )
         self.switch.pack(side="left")
 

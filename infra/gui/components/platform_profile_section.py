@@ -28,7 +28,7 @@ class PlatformProfileSection(ctk.CTkFrame):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=10,
             border_width=1,
             border_color=COLORS["border"],
             **kwargs,
@@ -48,11 +48,18 @@ class PlatformProfileSection(ctk.CTkFrame):
 
         ctk.CTkLabel(
             self,
-            text="PLATFORM",
+            text="Platform:",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=0, columnspan=4, sticky="w", padx=16, pady=(14, 8))
+        ).grid(row=0, column=0, columnspan=4, sticky="w", padx=14, pady=(10, 5))
+
+        ctk.CTkFrame(
+            self,
+            height=1,
+            fg_color=COLORS["border_subtle"],
+            corner_radius=0,
+        ).grid(row=0, column=0, columnspan=4, sticky="ew", padx=14, pady=(0, 0))
 
         ctk.CTkLabel(
             self,
@@ -60,7 +67,7 @@ class PlatformProfileSection(ctk.CTkFrame):
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=1, column=0, sticky="w", padx=(16, 8), pady=(0, 4))
+        ).grid(row=1, column=0, sticky="w", padx=(14, 8), pady=(0, 2))
 
         self._platform_menu = ctk.CTkOptionMenu(
             self,
@@ -74,9 +81,9 @@ class PlatformProfileSection(ctk.CTkFrame):
             dropdown_fg_color=COLORS["surface_alt"],
             dropdown_text_color=COLORS["text"],
             font=FONTS["label"],
-            corner_radius=8,
+            corner_radius=7,
         )
-        self._platform_menu.grid(row=1, column=1, sticky="ew", padx=(8, 8), pady=(0, 4))
+        self._platform_menu.grid(row=1, column=1, sticky="ew", padx=(8, 8), pady=(0, 2))
 
         ctk.CTkLabel(
             self,
@@ -84,14 +91,14 @@ class PlatformProfileSection(ctk.CTkFrame):
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=1, column=2, sticky="w", padx=(8, 8), pady=(0, 4))
+        ).grid(row=1, column=2, sticky="w", padx=(8, 8), pady=(0, 2))
 
         self._new_platform_entry = ctk.CTkEntry(
             self,
             placeholder_text="create a platform name",
             **ENTRY_STYLE,
         )
-        self._new_platform_entry.grid(row=1, column=3, sticky="ew", padx=(8, 16), pady=(0, 4))
+        self._new_platform_entry.grid(row=1, column=3, sticky="ew", padx=(8, 14), pady=(0, 2))
 
         save_button = ctk.CTkButton(
             self,
@@ -101,10 +108,10 @@ class PlatformProfileSection(ctk.CTkFrame):
             hover_color=COLORS["border"],
             text_color=COLORS["text"],
             font=FONTS["button"],
-            height=34,
-            corner_radius=8,
+            height=32,
+            corner_radius=7,
         )
-        save_button.grid(row=2, column=1, sticky="ew", padx=(8, 8), pady=(0, 14))
+        save_button.grid(row=2, column=1, sticky="ew", padx=(8, 8), pady=(0, 10))
 
         save_new_button = ctk.CTkButton(
             self,
@@ -114,10 +121,10 @@ class PlatformProfileSection(ctk.CTkFrame):
             hover_color=COLORS["accent_muted"],
             text_color=COLORS["text"],
             font=FONTS["button"],
-            height=34,
-            corner_radius=8,
+            height=32,
+            corner_radius=7,
         )
-        save_new_button.grid(row=2, column=3, sticky="ew", padx=(8, 16), pady=(0, 14))
+        save_new_button.grid(row=2, column=3, sticky="ew", padx=(8, 14), pady=(0, 10))
 
         if platform_names:
             self.set_selected_platform(platform_names[0], notify=False)

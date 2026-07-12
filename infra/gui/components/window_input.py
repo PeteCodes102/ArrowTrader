@@ -159,16 +159,83 @@ class WindowTitlePickerDialog(ctk.CTkToplevel):
         self.destroy()
 
 
+class WindowTargetSection(ctk.CTkFrame):
+    """Card containing the target window title input and picker button."""
+
+    def __init__(self, parent, **kwargs):
+        super().__init__(
+            parent,
+            fg_color=COLORS["surface"],
+            corner_radius=10,
+            border_width=1,
+            border_color=COLORS["border"],
+            **kwargs,
+        )
+        self._build()
+
+    def _build(self) -> None:
+        self.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            self,
+            text="Window Name:",
+            font=FONTS["section"],
+            text_color=COLORS["text_dim"],
+            anchor="w",
+        ).grid(row=0, column=0, sticky="w", padx=14, pady=(10, 4))
+
+        field = ctk.CTkFrame(self, fg_color="transparent")
+        field.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 10))
+        field.grid_columnconfigure(0, weight=1)
+
+        self.window_name_entry = ctk.CTkEntry(
+            field,
+            placeholder_text="e.g. Tradovate - Dark Default or TradingView session title",
+            show="",
+            **ENTRY_STYLE,
+        )
+        self.window_name_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+
+        ctk.CTkButton(
+            field,
+            text="Active Windows",
+            command=self.open_window_picker,
+            width=110,
+            height=34,
+            corner_radius=7,
+            fg_color=COLORS["surface_alt"],
+            hover_color=COLORS["border"],
+            text_color=COLORS["text"],
+            font=FONTS["button"],
+        ).grid(row=0, column=1, sticky="e")
+
+    @property
+    def window_name(self) -> str:
+        return self.window_name_entry.get()
+
+    def set_window_name(self, value: str) -> None:
+        self.window_name_entry.delete(0, "end")
+        self.window_name_entry.insert(0, value)
+
+    def open_window_picker(self) -> None:
+        window_titles = self._current_window_titles()
+        WindowTitlePickerDialog(self, window_titles, self.set_window_name)
+
+    def _current_window_titles(self) -> list[str]:
+        titles = [title.strip() for title in gw.getAllTitles() if title and title.strip()]
+        return list(dict.fromkeys(titles))
+
+
 class WindowInputSection(ctk.CTkFrame):
     """
-    Card containing window targeting and API credential/settings inputs.
+    Card containing API credential and session settings inputs.
     """
 
     def __init__(self, parent, default_api_url: str = "http://127.0.0.1:8000/api/v1", on_save: Callable[[], None] | None = None, **kwargs):
         super().__init__(
             parent,
             fg_color=COLORS["surface"],
-            corner_radius=12,
+            corner_radius=10,
             border_width=1,
             border_color=COLORS["border"],
             **kwargs,
@@ -180,123 +247,19 @@ class WindowInputSection(ctk.CTkFrame):
     # ── Layout ────────────────────────────────────────────────────────────────
 
     def _build(self) -> None:
-        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
+        # ── Session controls ─────────────────────────────────────────────────
         ctk.CTkLabel(
             self,
-            text="WINDOW NAME",
+            text="Trade Only During Session",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=0, sticky="w", padx=(16, 8), pady=(16, 4))
+        ).grid(row=0, column=0, sticky="w", padx=14, pady=(10, 3))
 
-        window_field = ctk.CTkFrame(self, fg_color="transparent")
-        window_field.grid(row=1, column=0, sticky="ew", padx=(16, 8), pady=(0, 16))
-        window_field.grid_columnconfigure(0, weight=1)
-
-        self.window_name_entry = ctk.CTkEntry(
-            window_field,
-            placeholder_text="e.g. Tradovate - Dark Default or TradingView session title",
-            show="",
-            **ENTRY_STYLE,
-        )
-        self.window_name_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
-
-        ctk.CTkButton(
-            window_field,
-            text="Windows",
-            command=self.open_window_picker,
-            width=90,
-            height=38,
-            corner_radius=8,
-            fg_color=COLORS["accent"],
-            hover_color=COLORS["accent_muted"],
-            text_color="#0D1117",
-            font=FONTS["button"],
-        ).grid(row=0, column=1, sticky="e")
-
-        ctk.CTkLabel(
-            self,
-            text="SECRET",
-            font=FONTS["section"],
-            text_color=COLORS["text_dim"],
-            anchor="w",
-        ).grid(row=0, column=1, sticky="w", padx=(8, 16), pady=(16, 4))
-
-        secret_field = ctk.CTkFrame(self, fg_color="transparent")
-        secret_field.grid(row=1, column=1, sticky="ew", padx=(8, 16), pady=(0, 16))
-        secret_field.grid_columnconfigure(0, weight=1)
-
-        self.secret_entry = ctk.CTkEntry(
-            secret_field,
-            placeholder_text="Enter or generate a secret",
-            show="•",
-            **ENTRY_STYLE,
-        )
-        self.secret_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
-
-        ctk.CTkButton(
-            secret_field,
-            text="Generate",
-            command=self._generate_secret,
-            width=90,
-            height=38,
-            corner_radius=8,
-            fg_color=COLORS["surface_alt"],
-            hover_color=COLORS["border"],
-            text_color=COLORS["text"],
-            font=FONTS["button"],
-        ).grid(row=0, column=1, sticky="e", padx=(0, 8))
-
-        ctk.CTkButton(
-            secret_field,
-            text="Copy",
-            command=self._copy_secret,
-            width=60,
-            height=38,
-            corner_radius=8,
-            fg_color=COLORS["surface_alt"],
-            hover_color=COLORS["border"],
-            text_color=COLORS["text"],
-            font=FONTS["button"],
-        ).grid(row=0, column=2, sticky="e")
-
-        # ── Auto-save row ──────────────────────────────────────────────────────
-        save_row = ctk.CTkFrame(secret_field, fg_color="transparent")
-        save_row.grid(row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
-
-        self._auto_save_var = ctk.BooleanVar(value=True)
-        ctk.CTkCheckBox(
-            save_row,
-            text="Auto-save on generate",
-            variable=self._auto_save_var,
-            font=FONTS["label"],
-            text_color=COLORS["text_dim"],
-            fg_color=COLORS["accent"],
-            hover_color=COLORS["accent_muted"],
-            border_color=COLORS["border"],
-            checkmark_color=COLORS["text"],
-            width=20,
-            height=20,
-        ).pack(side="left")
-
-        info_label = ctk.CTkLabel(
-            save_row,
-            text="  ⓘ",
-            font=FONTS["section"],
-            text_color=COLORS["text_muted"],
-            cursor="hand2",
-        )
-        info_label.pack(side="left")
-        _Tooltip(
-            info_label,
-            "If a new secret is generated, it will need to be updated"
-            " in your incoming TradingView API requests.",
-        )
-
-        # ── Session filter row ───────────────────────────────────────────────
-        session_row = ctk.CTkFrame(secret_field, fg_color="transparent")
-        session_row.grid(row=2, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        session_row = ctk.CTkFrame(self, fg_color="transparent")
+        session_row.grid(row=1, column=0, sticky="w", padx=14, pady=(0, 0))
 
         self._session_only_var = ctk.BooleanVar(value=False)
         ctk.CTkCheckBox(
@@ -309,8 +272,8 @@ class WindowInputSection(ctk.CTkFrame):
             hover_color=COLORS["accent_muted"],
             border_color=COLORS["border"],
             checkmark_color=COLORS["text"],
-            width=20,
-            height=20,
+            width=18,
+            height=18,
         ).pack(side="left")
 
         session_info = ctk.CTkLabel(
@@ -327,8 +290,8 @@ class WindowInputSection(ctk.CTkFrame):
             "Time Format HH:MM, Days 123456 1= Sunday 6= Friday",
         )
 
-        session_inputs = ctk.CTkFrame(secret_field, fg_color="transparent")
-        session_inputs.grid(row=3, column=0, columnspan=3, sticky="ew", pady=(6, 0))
+        session_inputs = ctk.CTkFrame(self, fg_color="transparent")
+        session_inputs.grid(row=2, column=0, sticky="ew", padx=14, pady=(4, 0))
         session_inputs.grid_columnconfigure((0, 1, 2), weight=1)
 
         ctk.CTkLabel(
@@ -337,7 +300,7 @@ class WindowInputSection(ctk.CTkFrame):
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=0, sticky="w", padx=(0, 8), pady=(0, 4))
+        ).grid(row=0, column=0, sticky="w", padx=(0, 8), pady=(0, 2))
 
         ctk.CTkLabel(
             session_inputs,
@@ -345,7 +308,7 @@ class WindowInputSection(ctk.CTkFrame):
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=1, sticky="w", padx=8, pady=(0, 4))
+        ).grid(row=0, column=1, sticky="w", padx=8, pady=(0, 2))
 
         ctk.CTkLabel(
             session_inputs,
@@ -353,11 +316,11 @@ class WindowInputSection(ctk.CTkFrame):
             font=FONTS["label"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=0, column=2, sticky="w", padx=(8, 0), pady=(0, 4))
+        ).grid(row=0, column=2, sticky="w", padx=(8, 0), pady=(0, 2))
 
         self.session_start_entry = ctk.CTkEntry(
             session_inputs,
-            placeholder_text="HH:MM",
+            placeholder_text="09:30",
             show="",
             **ENTRY_STYLE,
         )
@@ -365,7 +328,7 @@ class WindowInputSection(ctk.CTkFrame):
 
         self.session_end_entry = ctk.CTkEntry(
             session_inputs,
-            placeholder_text="HH:MM",
+            placeholder_text="16:00",
             show="",
             **ENTRY_STYLE,
         )
@@ -381,16 +344,17 @@ class WindowInputSection(ctk.CTkFrame):
 
         self.set_session_filter(False, "09:30", "16:00", "123456")
 
+        # ── API URL controls ─────────────────────────────────────────────────
         ctk.CTkLabel(
             self,
-            text="API URL",
+            text="API URL:",
             font=FONTS["section"],
             text_color=COLORS["text_dim"],
             anchor="w",
-        ).grid(row=2, column=0, columnspan=2, sticky="w", padx=(16, 16), pady=(0, 4))
+        ).grid(row=3, column=0, sticky="w", padx=14, pady=(8, 3))
 
         api_url_field = ctk.CTkFrame(self, fg_color="transparent")
-        api_url_field.grid(row=3, column=0, columnspan=2, sticky="ew", padx=(16, 16), pady=(0, 16))
+        api_url_field.grid(row=4, column=0, sticky="ew", padx=14, pady=(0, 8))
         api_url_field.grid_columnconfigure(0, weight=1)
 
         self.api_url_entry = ctk.CTkEntry(
@@ -405,22 +369,97 @@ class WindowInputSection(ctk.CTkFrame):
             api_url_field,
             text="Copy",
             command=self._copy_api_url,
-            width=60,
-            height=38,
-            corner_radius=8,
+            width=56,
+            height=34,
+            corner_radius=7,
             fg_color=COLORS["surface_alt"],
             hover_color=COLORS["border"],
             text_color=COLORS["text"],
             font=FONTS["button"],
         ).grid(row=0, column=1, sticky="e")
 
+        # ── Secret controls ──────────────────────────────────────────────────
+        ctk.CTkLabel(
+            self,
+            text="Secret",
+            font=FONTS["section"],
+            text_color=COLORS["text_dim"],
+            anchor="w",
+        ).grid(row=5, column=0, sticky="w", padx=14, pady=(0, 3))
+
+        secret_field = ctk.CTkFrame(self, fg_color="transparent")
+        secret_field.grid(row=6, column=0, sticky="ew", padx=14, pady=(0, 4))
+        secret_field.grid_columnconfigure(0, weight=1)
+
+        self.secret_entry = ctk.CTkEntry(
+            secret_field,
+            placeholder_text="Enter or generate a secret",
+            show="•",
+            **ENTRY_STYLE,
+        )
+        self.secret_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+
+        ctk.CTkButton(
+            secret_field,
+            text="Generate",
+            command=self._generate_secret,
+            width=80,
+            height=34,
+            corner_radius=7,
+            fg_color=COLORS["surface_alt"],
+            hover_color=COLORS["border"],
+            text_color=COLORS["text"],
+            font=FONTS["button"],
+        ).grid(row=0, column=1, sticky="e", padx=(0, 8))
+
+        ctk.CTkButton(
+            secret_field,
+            text="Copy",
+            command=self._copy_secret,
+            width=56,
+            height=34,
+            corner_radius=7,
+            fg_color=COLORS["surface_alt"],
+            hover_color=COLORS["border"],
+            text_color=COLORS["text"],
+            font=FONTS["button"],
+        ).grid(row=0, column=2, sticky="e")
+
+        save_row = ctk.CTkFrame(self, fg_color="transparent")
+        save_row.grid(row=7, column=0, sticky="w", padx=14, pady=(0, 10))
+
+        self._auto_save_var = ctk.BooleanVar(value=True)
+        ctk.CTkCheckBox(
+            save_row,
+            text="Auto-save on generate",
+            variable=self._auto_save_var,
+            font=FONTS["label"],
+            text_color=COLORS["text_dim"],
+            fg_color=COLORS["accent"],
+            hover_color=COLORS["accent_muted"],
+            border_color=COLORS["border"],
+            checkmark_color=COLORS["text"],
+            width=18,
+            height=18,
+        ).pack(side="left")
+
+        info_label = ctk.CTkLabel(
+            save_row,
+            text="  ⓘ",
+            font=FONTS["section"],
+            text_color=COLORS["text_muted"],
+            cursor="hand2",
+        )
+        info_label.pack(side="left")
+        _Tooltip(
+            info_label,
+            "If a new secret is generated, it will need to be updated"
+            " in your incoming TradingView API requests.",
+        )
+
         self.set_api_url(self._default_api_url)
 
     # ── Public API ────────────────────────────────────────────────────────────
-
-    @property
-    def window_name(self) -> str:
-        return self.window_name_entry.get()
 
     @property
     def secret(self) -> str:
@@ -445,10 +484,6 @@ class WindowInputSection(ctk.CTkFrame):
     @property
     def session_allowed_days(self) -> str:
         return self.allowed_days_entry.get().strip()
-
-    def set_window_name(self, value: str) -> None:
-        self.window_name_entry.delete(0, "end")
-        self.window_name_entry.insert(0, value)
 
     def set_secret(self, value: str) -> None:
         self.secret_entry.delete(0, "end")
@@ -489,11 +524,3 @@ class WindowInputSection(ctk.CTkFrame):
         self.session_end_entry.insert(0, end_time)
         self.allowed_days_entry.delete(0, "end")
         self.allowed_days_entry.insert(0, allowed_days)
-
-    def open_window_picker(self) -> None:
-        window_titles = self._current_window_titles()
-        WindowTitlePickerDialog(self, window_titles, self.set_window_name)
-
-    def _current_window_titles(self) -> list[str]:
-        titles = [title.strip() for title in gw.getAllTitles() if title and title.strip()]
-        return list(dict.fromkeys(titles))
